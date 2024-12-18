@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z.A.T - Shift Scheduler</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <section class="container">
+    <h1>Z.A.T - Shift Scheduler</h1>
+    
+    <label for="date">Select Date:</label>
+    <input type="date" id="date" required />
+
+    <label for="user-name">User Name:</label>
+    <input type="text" id="user-name" placeholder="e.g., CZAN_User1" aria-label="User name input" />
+
+    <label for="shift-start">Shift Start:</label>
+    <select id="shift-start" aria-label="Select shift start time"></select>
+
+    <label for="shift-end">Shift End:</label>
+    <select id="shift-end" aria-label="Select shift end time"></select>
+
+    <button id="add-user-btn" role="button">Add User</button>
+    <table id="shift-table" role="table" aria-label="Shift schedule table">
+        <thead>
+            <tr>
+                <th>Name</th><th>Shift Start</th><th>Shift End</th>
+                <th>Lunch Time</th><th>First Break</th><th>Second Break</th><th>Dispensing Shift</th>
+            </tr>
+        </thead>
+        <tbody id="shift-table-body"></tbody>
+    </table>
+
+    <button id="download-btn" role="button">Download Shift Chart</button>
+</section>
+
+
+    <footer>
+        <p>[Z.A.T] Zangetsu Automated Timesheet, Created by Zangetsu.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
