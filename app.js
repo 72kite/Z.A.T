@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const shiftEndTime = new Date(`1970-01-01T${shiftEnd}:00`);
 
         // Calculate Lunch (4 hours into the shift)
-        const lunchTime = new Date(shiftStartTime.getTime() + 4 * 60 * 60 * 1000);
+        let lunchTime = new Date(shiftStartTime.getTime() + 4 * 60 * 60 * 1000);
         const formattedLunchTime = formatTime(lunchTime);
 
         // Calculate First Break (2 hours into the shift)
@@ -49,6 +49,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const formattedDispensingShift = formatTime(dispensingShiftStart);
 
+        // Check for conflicts withing th
+        if (hasConflict(formattedLunchTime, formattedFirstBreakTime, formattedSecondBreakTime)) {
+            // Shift lunch time by 1 hour
+            lunchTime = new Date(lunchTime.getTime() + 1 * 60 * 60 * 1000);
+            alert('There is a conflict with the break times. The system will auto shift lunch ahead for one hour for coverage.');
+        }
+
+        const formattedAdjustedLunchTime = formatTime(lunchTime);
+
         // Adding data to the table
         const tableBody = document.getElementById('shift-table-body');
         const row = document.createElement('tr');
@@ -56,13 +65,37 @@ document.addEventListener('DOMContentLoaded', function () {
             <td>${userName}</td>
             <td>${formatTime(shiftStartTime)}</td>
             <td>${formatTime(shiftEndTime)}</td>
-            <td>${formattedLunchTime}</td>
+            <td>${formattedAdjustedLunchTime}</td>
             <td>${formattedFirstBreakTime}</td>
             <td>${formattedSecondBreakTime}</td>
             <td>${formattedDispensingShift}</td>
+            <td><button class="delete-btn">Delete</button></td>
         `;
         tableBody.appendChild(row);
+
+        // Add event listener to delete button
+        row.querySelector('.delete-btn').addEventListener('click', function () {
+            row.remove();
+        });
     });
+
+    // Function to check for conflicts
+    function hasConflict(lunchTime, firstBreakTime, secondBreakTime) {
+        const tableBody = document.getElementById('shift-table-body');
+        const rows = tableBody.querySelectorAll('tr');
+
+        for (const row of rows) {
+            const existingLunchTime = row.cells[3].textContent;
+            const existingFirstBreakTime = row.cells[4].textContent;
+            const existingSecondBreakTime = row.cells[5].textContent;
+
+            if (existingLunchTime === lunchTime || existingFirstBreakTime === firstBreakTime || existingSecondBreakTime === secondBreakTime) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     // Function to update shift end options based on the selected start time
     function updateShiftEndOptions() {
@@ -135,25 +168,41 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
-    // Functionality for the Download Button
-document.getElementById('download-btn').addEventListener('click', () => {
-    const table = document.getElementById('shift-table');
-    const rows = table.querySelectorAll('tr');
-    let csvContent = '';
 
-    // Loop through table rows to build CSV content
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('th, td');
-        const rowData = Array.from(cells).map(cell => `"${cell.innerText}"`).join(',');
-        csvContent += rowData + '\n';
+    // Functionality for the Download Button
+    document.getElementById('download-btn').addEventListener('click', () => {
+        const table = document.getElementById('shift-table');
+        const rows = table.querySelectorAll('tr');
+        let csvContent = '';
+
+        // Loop through table rows to build CSV content
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('th, td');
+            const rowData = Array.from(cells).map(cell => `"${cell.innerText}"`).join(',');
+            csvContent += rowData + '\n';
+        });
+
+        // Create a CSV file and trigger download of shift chart
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'shift_schedule.csv';
+        link.click();
     });
 
-    // Create a execl or xls and trigger download of shift chart
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'shift_schedule.csv';
-    link.click()
-});
+    // Adding the Actions column header
+    const tableHead = document.getElementById('shift-table-head');
+    const headerRow = document.createElement('tr');
+    headerRow.innerHTML = `
+        <th>User Name</th>
+        <th>Shift Start</th>
+        <th>Shift End</th>
+        <th>Lunch Break</th>
+        <th>First Break</th>
+        <th>Second Break</th>
+        <th>Dispensing Shift</th>
+        <th>Actions</th>
 
+    `;
+    tableHead.appendChild(headerRow);
 });
